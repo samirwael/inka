@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Inka Coffee — Coffee With a Soul</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Cormorant+Garamond:wght@300;400;600&family=Libre+Baskerville:ital@0;1&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --kraft: #c49a3c;
+    --kraft-dark: #a07828;
+    --kraft-light: #d4aa52;
+    --kraft-pale: #e8c87a;
+    --ink: #1a0e04;
+    --ink-light: #2e1c08;
+    --bg: #0e0904;
+    --bg2: #160e05;
+    --gold: #c8a45e;
+    --gold-dim: #8a6830;
+    --muted: #4a3418;
+    --faint: #2a1a08;
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--gold);
+    font-family: 'Cormorant Garamond', serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── GRAIN OVERLAY ── */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.35;
+  }
+
+  /* ── AMBIENT LIGHT ── */
+  .ambient {
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 50% 0%, rgba(196,154,60,0.07) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 30% at 20% 80%, rgba(196,154,60,0.04) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── LAYOUT ── */
+  .page {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 1.5rem 3rem;
+    gap: 0;
+  }
+
+  /* ── TOP LABEL ── */
+  .top-label {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.5em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 2.5rem;
+    opacity: 0;
+    animation: fadeUp 1s ease 0.2s forwards;
+  }
+
+  /* ── BAG CONTAINER ── */
+  .bag-outer {
+    position: relative;
+    width: min(310px, 88vw);
+    opacity: 0;
+    animation: fadeUp 1.2s ease 0.4s forwards;
+  }
+
+  .bag-outer:hover .bag-body {
+    transform: perspective(800px) rotateY(-2deg) rotateX(1deg) scale(1.01);
+  }
+
+  /* ── BAG ── */
+  .bag-body {
+    background: var(--kraft);
+    border-radius: 5px 5px 3px 3px;
+    overflow: hidden;
+    position: relative;
+    transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+    box-shadow:
+      0 20px 60px rgba(0,0,0,0.8),
+      0 4px 12px rgba(0,0,0,0.5),
+      inset 0 0 80px rgba(0,0,0,0.15);
+  }
+
+  /* kraft paper texture */
+  .bag-body::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 3px,
+        rgba(0,0,0,0.015) 3px,
+        rgba(0,0,0,0.015) 4px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 6px,
+        rgba(0,0,0,0.01) 6px,
+        rgba(0,0,0,0.01) 7px
+      );
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* side shadow for 3D feel */
+  .bag-body::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0; bottom: 0;
+    width: 30%;
+    background: linear-gradient(90deg, transparent, rgba(0,0,0,0.18));
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* ── BAG TOP STRIP ── */
+  .bag-top-strip {
+    background: var(--kraft-dark);
+    padding: 0.35rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(0,0,0,0.2);
+    position: relative;
+    z-index: 2;
+  }
+
+  .bag-top-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.5rem;
+    letter-spacing: 0.15em;
+    color: rgba(0,0,0,0.45);
+  }
+
+  .bag-clip {
+    width: 18px;
+    height: 20px;
+    background: var(--ink);
+    border-radius: 2px 2px 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .bag-clip-inner {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #2e2010;
+  }
+
+  /* ── ZIPPER SEAL ── */
+  .bag-seal {
+    background: var(--kraft-dark);
+    height: 24px;
+    border-bottom: 1.5px solid rgba(0,0,0,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    position: relative;
+    z-index: 2;
+    overflow: hidden;
+  }
+
+  .bag-seal::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      90deg,
+      rgba(0,0,0,0.12) 0px,
+      rgba(0,0,0,0.12) 3px,
+      transparent 3px,
+      transparent 8px
+    );
+  }
+
+  /* ── BAG MAIN CONTENT ── */
+  .bag-main {
+    padding: 1.8rem 2rem 1.6rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* ── INCA SVG LOGO ── */
+  .inca-svg {
+    width: 130px;
+    height: auto;
+    margin-bottom: 0.4rem;
+  }
+
+  /* ── STEAM ANIMATION ── */
+  @keyframes steam {
+    0%   { opacity: 0; transform: translateY(0) scaleX(1); }
+    30%  { opacity: 0.9; }
+    100% { opacity: 0; transform: translateY(-18px) scaleX(1.3); }
+  }
+
+  .steam-group path {
+    animation: steam 2.4s ease-in-out infinite;
+  }
+  .steam-group path:nth-child(2) { animation-delay: 0.5s; }
+  .steam-group path:nth-child(3) { animation-delay: 1s; }
+
+  /* ── INKA WORDMARK ── */
+  .inka-wordmark {
+    font-family: 'Playfair Display', serif;
+    font-size: 5rem;
+    font-weight: 900;
+    color: var(--ink);
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    margin: 0.1rem 0 0.5rem;
+    text-shadow: 2px 3px 0px rgba(0,0,0,0.15);
+  }
+
+  .inka-wordmark .i-dot {
+    display: inline-block;
+    position: relative;
+  }
+
+  .inka-wordmark .i-dot::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6px;
+    height: 6px;
+    background: var(--ink);
+    border-radius: 50%;
+  }
+
+  .coffee-line {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 0.72rem;
+    font-weight: 400;
+    letter-spacing: 0.35em;
+    color: var(--ink);
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+  }
+
+  .est-line {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.82rem;
+    font-style: italic;
+    letter-spacing: 0.22em;
+    color: var(--ink);
+    opacity: 0.7;
+  }
+
+  /* ── BAG BOTTOM FOLD ── */
+  .bag-fold {
+    background: var(--kraft-dark);
+    height: 20px;
+    border-top: 1.5px solid rgba(0,0,0,0.25);
+    position: relative;
+    z-index: 2;
+  }
+
+  .bag-base {
+    background: var(--ink-light);
+    height: 16px;
+    border-radius: 0 0 3px 3px;
+    position: relative;
+    z-index: 2;
+  }
+  .bag-base::before {
+    content: '';
+    position: absolute;
+    inset: 0 15% 0 15%;
+    background: rgba(255,255,255,0.04);
+    border-radius: 0 0 2px 2px;
+  }
+
+  /* ── SHADOW UNDER BAG ── */
+  .bag-shadow {
+    width: 75%;
+    height: 14px;
+    background: radial-gradient(ellipse, rgba(0,0,0,0.55) 0%, transparent 70%);
+    margin: 0 auto;
+    transform: scaleX(1.1);
+    position: relative;
+    z-index: 0;
+  }
+
+  /* ── BRAND NAME BELOW BAG ── */
+  .brand-line {
+    margin-top: 2.8rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    opacity: 0;
+    animation: fadeUp 1.2s ease 0.8s forwards;
+  }
+
+  .brand-big {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3rem, 9vw, 4.8rem);
+    font-weight: 900;
+    color: var(--kraft);
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+
+  .brand-tagline {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.45em;
+    color: var(--gold-dim);
+    text-transform: uppercase;
+  }
+
+  /* ── THIN DIVIDER ── */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 2rem 0;
+    width: min(300px, 88vw);
+    opacity: 0;
+    animation: fadeUp 1.2s ease 1s forwards;
+  }
+  .divider-line { flex: 1; height: 0.5px; background: var(--faint); }
+  .divider-diamond {
+    width: 6px;
+    height: 6px;
+    background: var(--gold-dim);
+    transform: rotate(45deg);
+    flex-shrink: 0;
+  }
+
+  /* ── SOCIAL LINKS ── */
+  .social-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    opacity: 0;
+    animation: fadeUp 1.2s ease 1.1s forwards;
+    width: 100%;
+    max-width: 380px;
+  }
+
+  .social-label {
+    font-size: 0.58rem;
+    letter-spacing: 0.45em;
+    color: var(--muted);
+    text-transform: uppercase;
+    font-family: 'Cormorant Garamond', serif;
+  }
+
+  .social-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.6rem;
+    width: 100%;
+  }
+
+  .s-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.1rem;
+    border: 0.5px solid var(--faint);
+    color: var(--gold-dim);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-decoration: none;
+    background: transparent;
+    transition: border-color 0.3s, color 0.3s, background 0.3s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .s-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--kraft);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s cubic-bezier(0.23,1,0.32,1);
+    z-index: 0;
+  }
+
+  .s-btn:hover::before { transform: scaleX(1); }
+  .s-btn:hover { color: var(--ink); border-color: var(--kraft); }
+
+  .s-btn span, .s-btn svg { position: relative; z-index: 1; }
+  .s-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+  /* ── FOOTER ── */
+  .footer {
+    margin-top: 2.5rem;
+    font-size: 0.58rem;
+    letter-spacing: 0.3em;
+    color: var(--faint);
+    text-transform: uppercase;
+    font-family: 'Cormorant Garamond', serif;
+    opacity: 0;
+    animation: fadeUp 1.2s ease 1.3s forwards;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── CURSOR GLOW ── */
+  .cursor-glow {
+    position: fixed;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(196,154,60,0.06) 0%, transparent 70%);
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    transition: left 0.12s ease, top 0.12s ease;
+    z-index: 2;
+  }
+
+  /* ── PARALLAX PARTICLES ── */
+  .particles {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .particle {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: var(--kraft);
+    border-radius: 50%;
+    opacity: 0;
+    animation: particleDrift linear infinite;
+  }
+
+  @keyframes particleDrift {
+    0%   { opacity: 0; transform: translateY(0) translateX(0); }
+    10%  { opacity: 0.4; }
+    90%  { opacity: 0.2; }
+    100% { opacity: 0; transform: translateY(-120vh) translateX(20px); }
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 400px) {
+    .inka-wordmark { font-size: 4rem; }
+    .brand-big { font-size: 2.8rem; }
+    .s-btn { padding: 0.5rem 0.8rem; font-size: 0.68rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="ambient"></div>
+<div class="cursor-glow" id="glow"></div>
+
+<!-- Floating particles -->
+<div class="particles" id="particles"></div>
+
+<div class="page">
+
+  <div class="top-label">Est. Egypt &nbsp;·&nbsp; Specialty Coffee</div>
+
+  <!-- BAG -->
+  <div class="bag-outer" id="bag">
+    <div class="bag-body">
+
+      <div class="bag-top-strip">
+        <div class="bag-top-text">Pull the TAB to open &nbsp;·&nbsp; easy-to-open &nbsp;·&nbsp; easy-to-open &nbsp;·&nbsp; easy-to-open</div>
+        <div class="bag-clip"><div class="bag-clip-inner"></div></div>
+      </div>
+
+      <div class="bag-seal"></div>
+
+      <div class="bag-main">
+
+        <!-- Inca face SVG — exact match to logo style -->
+        <svg class="inca-svg" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+          <!-- Steam above -->
+          <g class="steam-group" transform="translate(80,8)">
+            <path d="M-6,0 Q-9,-6 -6,-13" fill="none" stroke="#1a0e04" stroke-width="1.6" stroke-linecap="round" opacity="0.7"/>
+            <path d="M0,0 Q3,-8 0,-16" fill="none" stroke="#1a0e04" stroke-width="1.6" stroke-linecap="round" opacity="0.7"/>
+            <path d="M6,0 Q9,-6 6,-13" fill="none" stroke="#1a0e04" stroke-width="1.6" stroke-linecap="round" opacity="0.7"/>
+          </g>
+
+          <!-- Sun headdress rays -->
+          <g transform="translate(80,50)">
+            <!-- central tall ray -->
+            <line x1="0" y1="-42" x2="0" y2="-26" stroke="#1a0e04" stroke-width="3" stroke-linecap="round"/>
+            <!-- medium rays -->
+            <line x1="0" y1="-40" x2="0" y2="-24" stroke="#1a0e04" stroke-width="2.5" stroke-linecap="round" transform="rotate(16)"/>
+            <line x1="0" y1="-40" x2="0" y2="-24" stroke="#1a0e04" stroke-width="2.5" stroke-linecap="round" transform="rotate(-16)"/>
+            <line x1="0" y1="-38" x2="0" y2="-22" stroke="#1a0e04" stroke-width="2" stroke-linecap="round" transform="rotate(32)"/>
+            <line x1="0" y1="-38" x2="0" y2="-22" stroke="#1a0e04" stroke-width="2" stroke-linecap="round" transform="rotate(-32)"/>
+            <line x1="0" y1="-36" x2="0" y2="-20" stroke="#1a0e04" stroke-width="2" stroke-linecap="round" transform="rotate(48)"/>
+            <line x1="0" y1="-36" x2="0" y2="-20" stroke="#1a0e04" stroke-width="2" stroke-linecap="round" transform="rotate(-48)"/>
+            <line x1="0" y1="-34" x2="0" y2="-20" stroke="#1a0e04" stroke-width="1.5" stroke-linecap="round" transform="rotate(64)"/>
+            <line x1="0" y1="-34" x2="0" y2="-20" stroke="#1a0e04" stroke-width="1.5" stroke-linecap="round" transform="rotate(-64)"/>
+            <line x1="0" y1="-32" x2="0" y2="-20" stroke="#1a0e04" stroke-width="1.2" stroke-linecap="round" transform="rotate(78)"/>
+            <line x1="0" y1="-32" x2="0" y2="-20" stroke="#1a0e04" stroke-width="1.2" stroke-linecap="round" transform="rotate(-78)"/>
+            <!-- headdress base band -->
+            <rect x="-26" y="-22" width="52" height="9" rx="1" fill="#1a0e04"/>
+            <rect x="-22" y="-22" width="4" height="9" fill="#a07828" opacity="0.4"/>
+            <rect x="-14" y="-22" width="4" height="9" fill="#a07828" opacity="0.4"/>
+            <rect x="-6" y="-22" width="4" height="9" fill="#a07828" opacity="0.4"/>
+            <rect x="2" y="-22" width="4" height="9" fill="#a07828" opacity="0.4"/>
+            <rect x="10" y="-22" width="4" height="9" fill="#a07828" opacity="0.4"/>
+            <rect x="18" y="-22" width="4" height="9" fill="#a07828" opacity="0.4"/>
+          </g>
+
+          <!-- Face shape -->
+          <ellipse cx="80" cy="90" rx="24" ry="28" fill="#1a0e04"/>
+          <!-- forehead overlap with headdress -->
+          <rect x="56" y="62" width="48" height="14" fill="#1a0e04"/>
+
+          <!-- Brow line -->
+          <path d="M62,77 Q80,73 98,77" fill="none" stroke="#1a0e04" stroke-width="0"/>
+
+          <!-- Eyes - almond shaped -->
+          <path d="M66,83 Q71,79 76,83 Q71,87 66,83Z" fill="#c49a3c"/>
+          <path d="M84,83 Q89,79 94,83 Q89,87 84,83Z" fill="#c49a3c"/>
+          <circle cx="71" cy="83" r="3" fill="#1a0e04"/>
+          <circle cx="89" cy="83" r="3" fill="#1a0e04"/>
+          <!-- eye shine -->
+          <circle cx="72.5" cy="81.5" r="1" fill="#c49a3c" opacity="0.6"/>
+          <circle cx="90.5" cy="81.5" r="1" fill="#c49a3c" opacity="0.6"/>
+
+          <!-- Nose bridge -->
+          <path d="M80 88 L78 95 Q80 97 82 95 Z" fill="#c49a3c" opacity="0.5"/>
+
+          <!-- Mouth -->
+          <path d="M74,102 Q80,106 86,102" fill="none" stroke="#c49a3c" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+
+          <!-- Earrings left -->
+          <line x1="56" y1="87" x2="56" y2="96" stroke="#1a0e04" stroke-width="2.5"/>
+          <circle cx="56" cy="100" r="4" fill="#1a0e04"/>
+          <circle cx="56" cy="100" r="2" fill="#c49a3c" opacity="0.5"/>
+          <!-- Earrings right -->
+          <line x1="104" y1="87" x2="104" y2="96" stroke="#1a0e04" stroke-width="2.5"/>
+          <circle cx="104" cy="100" r="4" fill="#1a0e04"/>
+          <circle cx="104" cy="100" r="2" fill="#c49a3c" opacity="0.5"/>
+
+          <!-- Chin pendants -->
+          <polygon points="80,113 84,122 80,118 76,122" fill="#1a0e04"/>
+          <polygon points="72,110 75,116 72,113 69,116" fill="#1a0e04" opacity="0.7"/>
+          <polygon points="88,110 91,116 88,113 85,116" fill="#1a0e04" opacity="0.7"/>
+        </svg>
+
+        <!-- Wordmark -->
+        <div class="inka-wordmark">inka</div>
+
+        <div class="coffee-line">Coffee with a soul</div>
+        <div class="est-line">-Est.Egypt-</div>
+
+      </div>
+
+      <div class="bag-fold"></div>
+      <div class="bag-base"></div>
+    </div>
+    <div class="bag-shadow"></div>
+  </div>
+
+  <!-- Brand name -->
+  <div class="brand-line">
+    <div class="brand-big">INKA</div>
+    <div class="brand-tagline">Coffee with a soul &nbsp;·&nbsp; Est. Egypt</div>
+  </div>
+
+  <!-- Divider -->
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-diamond"></div>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- Social Links -->
+  <div class="social-section">
+    <div class="social-label">Follow the journey</div>
+    <div class="social-grid">
+
+      <a class="s-btn" href="https://www.instagram.com/inka_egy" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="2" y="2" width="20" height="20" rx="5"/>
+          <circle cx="12" cy="12" r="5"/>
+          <circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/>
+        </svg>
+        <span>Instagram</span>
+      </a>
+
+      <a class="s-btn" href="https://www.facebook.com/share/1Crd4Tdx6q/" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="2" y="2" width="20" height="20" rx="3"/>
+          <path d="M15 8h-2a1 1 0 0 0-1 1v2h3l-.5 3H12v7"/>
+        </svg>
+        <span>Facebook</span>
+      </a>
+
+      <a class="s-btn" href="https://www.tiktok.com/@inka_egy" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/>
+        </svg>
+        <span>TikTok</span>
+      </a>
+
+      <a class="s-btn" href="https://wa.me/201030393215?text=Hi%2C%20I%27d%20like%20to%20order%20from%20Inka%20Coffee!" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+        </svg>
+        <span>WhatsApp</span>
+      </a>
+
+
+
+    </div>
+  </div>
+
+  <div class="footer">© 2025 Inka Coffee &nbsp;·&nbsp; All rights reserved</div>
+
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  // Cursor glow
+  const glow = document.getElementById('glow');
+  document.addEventListener('mousemove', e => {
+    glow.style.left = e.clientX + 'px';
+    glow.style.top  = e.clientY + 'px';
+  });
+
+  // Bag tilt on mousemove
+  const bag = document.getElementById('bag');
+  document.addEventListener('mousemove', e => {
+    const rect = bag.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top  + rect.height / 2;
+    const dx = (e.clientX - cx) / window.innerWidth;
+    const dy = (e.clientY - cy) / window.innerHeight;
+    bag.querySelector('.bag-body').style.transform =
+      `perspective(900px) rotateY(${dx * 6}deg) rotateX(${-dy * 4}deg) scale(1.005)`;
+  });
+  document.addEventListener('mouseleave', () => {
+    bag.querySelector('.bag-body').style.transform = 'perspective(900px) rotateY(0deg) rotateX(0deg) scale(1)';
+  });
+
+  // Floating particles
+  const container = document.getElementById('particles');
+  for (let i = 0; i < 28; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.top  = Math.random() * 100 + 'vh';
+    p.style.width  = (Math.random() * 2 + 1) + 'px';
+    p.style.height = p.style.width;
+    p.style.animationDuration  = (Math.random() * 18 + 12) + 's';
+    p.style.a
